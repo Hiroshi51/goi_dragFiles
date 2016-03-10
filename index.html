@@ -1,3 +1,8 @@
+<?php
+session_start();
+require_once('../dbinfo.php');
+require_once('login-status.php');
+?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -5,18 +10,14 @@
     <title>fileUploading and cancel</title>
   
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="<?php echo $siteUrl; ?>/admin.css">
     <style>
-    #dropable{
-        width:100%;
-        height:800px;
-        border:1px solid #999;
-        background-color: #eee;
-    }
+    
     </style>
     <script>
     function sendFileToServer(formData,status)
     {
-        var uploadURL ="update-img.php"; //Upload URL
+        var uploadURL ="upload-img.php"; //Upload URL
         var extraData ={}; //Extra Data.
         var jqXHR=$.ajax({
                 xhr: function() {
@@ -40,12 +41,19 @@
                 contentType:false,
                 processData: false,
                 cache: false,
-                data: formData,
-                success: function(data){
+                data: formData
+                })
+                .done(function(data){
                     status.setProgress(100);
-                    $("#status1").append("File upload Done<br>");         
-            }
-        }); 
+                    console.log("success");
+                    })
+                .fail(function(data){
+                 console.log("fail");
+                    })
+                .always(function(data){
+                 console.log("keepGoing");
+                    }); 
+
         status.setAbort(jqXHR);
     }
 
@@ -105,7 +113,6 @@
                 {
                     var fd = new FormData();
                     fd.append('file', files[i]);
-
                     var status = new createStatusbar(obj); //Using this we can set progress.
                     status.setFileNameSize(files[i].name,files[i].size);
                     sendFileToServer(fd,status);
@@ -166,9 +173,9 @@
                 });
                reader.readAsText(file); 
                reader.onload = function(){alert("done");};  
-               
+                  
               });  
-             handleFileUpload(files,$dropArea);    
+             handleFileUpload(files,$dropArea); 
           }
         });
     });
